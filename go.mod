@@ -6,10 +6,13 @@ toolchain go1.23.6
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.31.0
+	github.com/cinar/indicator v1.3.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/jackc/pgx/v5 v5.7.2
+	github.com/stretchr/testify v1.10.0
 	github.com/wuhewuhe/bybit.go.api v1.0.4
 	go.uber.org/zap v1.27.0
+	gonum.org/v1/gonum v0.15.1
 )
 
 require (
@@ -17,6 +20,7 @@ require (
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/bitly/go-simplejson v0.5.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
@@ -32,6 +36,7 @@ require (
 	github.com/paulmach/orb v0.11.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
