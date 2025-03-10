@@ -1,4 +1,4 @@
-package grpc
+package server
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func NewClient(
+func NewGrpcClient(
 	component string,
 	host, port string,
 	transportCreds credentials.TransportCredentials,

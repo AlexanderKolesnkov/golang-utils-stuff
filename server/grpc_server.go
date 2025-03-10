@@ -1,4 +1,4 @@
-package grpc
+package server
 
 import (
 	"context"
@@ -19,7 +19,7 @@ import (
 	"os"
 )
 
-type Server struct {
+type GrpcServer struct {
 	Srv *grpc.Server
 }
 
@@ -27,14 +27,14 @@ func NewGrpcServer(
 	component string,
 	authFunc auth.AuthFunc,
 	creds credentials.TransportCredentials,
-) *Server {
+) *GrpcServer {
 	rpcLogger, logTraceID := newRpcLogger(component)
 
 	allButHealthZ := func(ctx context.Context, callMeta interceptors.CallMeta) bool {
 		return healthpb.Health_ServiceDesc.ServiceName != callMeta.Service
 	}
 
-	s := &Server{
+	s := &GrpcServer{
 		Srv: grpc.NewServer(
 			grpc.Creds(creds),
 			grpc.ChainUnaryInterceptor(
@@ -53,7 +53,7 @@ func NewGrpcServer(
 	return s
 }
 
-func (s *Server) ListenAndServe(network, port string) error {
+func (s *GrpcServer) ListenAndServe(network, port string) error {
 	addr := fmt.Sprintf(":%s", port)
 
 	reflection.Register(s.Srv)
