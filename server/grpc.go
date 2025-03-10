@@ -19,7 +19,7 @@ import (
 )
 
 type Grpc struct {
-	srv *grpc.Server
+	Srv *grpc.Server
 }
 
 func NewGrpcServer(
@@ -41,7 +41,7 @@ func NewGrpcServer(
 	}
 
 	s := &Grpc{
-		srv: grpc.NewServer(
+		Srv: grpc.NewServer(
 			grpc.Creds(creds),
 			grpc.ChainUnaryInterceptor(
 				logging.UnaryServerInterceptor(interceptorLogger(rpcLogger), logging.WithFieldsFromContext(logTraceID)),
@@ -62,14 +62,14 @@ func NewGrpcServer(
 func (s *Grpc) ListenAndServe(network, port string) error {
 	addr := fmt.Sprintf(":%s", port)
 
-	reflection.Register(s.srv)
+	reflection.Register(s.Srv)
 
 	listen, err := net.Listen(network, addr)
 	if err != nil {
 		return fmt.Errorf("net Listen: %v", err)
 	}
 
-	if err := s.srv.Serve(listen); err != nil {
+	if err := s.Srv.Serve(listen); err != nil {
 		return fmt.Errorf("serve: %v", err)
 	}
 
