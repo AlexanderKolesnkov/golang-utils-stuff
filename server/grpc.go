@@ -19,6 +19,7 @@ import (
 )
 
 type Grpc struct {
+	// server
 	Srv *grpc.Server
 }
 
