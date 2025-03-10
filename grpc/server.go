@@ -1,4 +1,4 @@
-package server
+package grpc
 
 import (
 	"context"
@@ -9,17 +9,17 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/selector"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
+
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
-	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 	"log/slog"
 	"net"
 	"os"
 )
 
-type Grpc struct {
-	// server
+type Server struct {
 	Srv *grpc.Server
 }
 
@@ -27,21 +27,14 @@ func NewGrpcServer(
 	component string,
 	authFunc auth.AuthFunc,
 	creds credentials.TransportCredentials,
-) *Grpc {
-	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{}))
-	rpcLogger := logger.With("service", "gRPC/server", "component", component)
-	logTraceID := func(ctx context.Context) logging.Fields {
-		if span := trace.SpanContextFromContext(ctx); span.IsSampled() {
-			return logging.Fields{"traceID", span.TraceID().String()}
-		}
-		return nil
-	}
+) *Server {
+	rpcLogger, logTraceID := newRpcLogger(component)
 
 	allButHealthZ := func(ctx context.Context, callMeta interceptors.CallMeta) bool {
 		return healthpb.Health_ServiceDesc.ServiceName != callMeta.Service
 	}
 
-	s := &Grpc{
+	s := &Server{
 		Srv: grpc.NewServer(
 			grpc.Creds(creds),
 			grpc.ChainUnaryInterceptor(
@@ -60,7 +53,7 @@ func NewGrpcServer(
 	return s
 }
 
-func (s *Grpc) ListenAndServe(network, port string) error {
+func (s *Server) ListenAndServe(network, port string) error {
 	addr := fmt.Sprintf(":%s", port)
 
 	reflection.Register(s.Srv)
@@ -75,6 +68,19 @@ func (s *Grpc) ListenAndServe(network, port string) error {
 	}
 
 	return nil
+}
+
+func newRpcLogger(component string) (*slog.Logger, func(ctx context.Context) logging.Fields) {
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{}))
+	rpcLogger := logger.With("service", "gRPC/server", "component", component)
+	logTraceID := func(ctx context.Context) logging.Fields {
+		if span := trace.SpanContextFromContext(ctx); span.IsSampled() {
+			return logging.Fields{"traceID", span.TraceID().String()}
+		}
+		return nil
+	}
+
+	return rpcLogger, logTraceID
 }
 
 func interceptorLogger(l *slog.Logger) logging.Logger {
