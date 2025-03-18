@@ -216,6 +216,10 @@ func WriteCsv(filepath string, headers []string, records [][]string) error {
 	return nil
 }
 
+func GetMinuteInUnixMilli(ms int64) int64 {
+	return (ms / (1000 * 60)) % 60
+}
+
 func MakeAbsSlice(s []float64) {
 	for i := 0; i < len(s); i++ {
 		s[i] = math.Abs(s[i])
