@@ -36,7 +36,9 @@ func (b *Broadcast) Listen(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case message := <-b.ch:
+			p := time.Now()
 			b.iterateSubscribers(message)
+			fmt.Println("iterateSubscribers", time.Since(p))
 		}
 	}
 }
