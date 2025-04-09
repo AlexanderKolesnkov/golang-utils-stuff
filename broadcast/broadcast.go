@@ -3,7 +3,6 @@ package broadcast
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -58,8 +57,7 @@ func (b *Broadcast) iterateSubscribers(message Message) {
 			break
 		case sub.ch <- message:
 			break
-		case <-time.After(100 * time.Millisecond):
-			log.Println("timeout", key)
+		case <-time.After(1 * time.Second):
 			break
 		}
 	}
