@@ -36,7 +36,9 @@ func (b *Broadcast) Listen(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case message := <-b.ch:
+			p := time.Now()
 			b.iterateSubscribers(message)
+			fmt.Println(time.Since(p))
 		}
 	}
 }
@@ -58,6 +60,7 @@ func (b *Broadcast) iterateSubscribers(message Message) {
 		case sub.ch <- message:
 			break
 		case <-time.After(1 * time.Second):
+			fmt.Println("timeout", key)
 			break
 		}
 	}
