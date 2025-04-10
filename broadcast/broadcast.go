@@ -66,11 +66,16 @@ func (b *Broadcast) iterateSubscribers(message Message) {
 }
 
 func (b *Broadcast) Send(symbol, timeframe string, StartTime int64, confirm bool) {
-	b.ch <- Message{
+	select {
+	case b.ch <- Message{
 		Symbol:    symbol,
 		Timeframe: timeframe,
 		StartTime: StartTime,
 		Confirm:   confirm,
+	}:
+		break
+	case <-time.After(1 * time.Millisecond):
+		break
 	}
 }
 
