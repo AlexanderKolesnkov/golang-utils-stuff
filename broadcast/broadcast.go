@@ -37,6 +37,8 @@ func (b *Broadcast) Listen(ctx context.Context) {
 			return
 		case message := <-b.ch:
 			b.iterateSubscribers(message)
+		case <-time.After(1 * time.Millisecond):
+			break
 		}
 	}
 }
