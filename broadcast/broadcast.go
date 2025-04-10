@@ -57,8 +57,7 @@ func (b *Broadcast) iterateSubscribers(message Message) {
 			break
 		case sub.ch <- message:
 			break
-		case <-time.After(1 * time.Second):
-			fmt.Println("timeout", key)
+		case <-time.After(1 * time.Millisecond):
 			break
 		}
 	}
