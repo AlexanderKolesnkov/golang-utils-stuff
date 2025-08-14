@@ -66,3 +66,45 @@ func CalcTimeframesCount(timeframe, start, end string) (int, error) {
 
 	return -1, nil
 }
+
+func IsUnixEnds(unix int, timeframe string, counter *int) bool {
+	switch timeframe {
+	case "3D":
+		if unix%86400 == 0 {
+			*counter++
+			if *counter == 3 {
+				*counter = 0
+				return true
+			}
+		}
+
+		return false
+	case "D":
+		if unix%86400 == 0 {
+			return true
+		}
+
+		return false
+	case "12h":
+		if unix%86400 == 0 || unix%86400 == 43200 {
+			return true
+		}
+
+		return false
+
+	case "2h":
+		if unix%3600 == 0 && (unix/3600)%2 == 0 {
+			return true
+		}
+
+		return false
+	case "1h":
+		if unix%3600 == 0 {
+			return true
+		}
+
+		return false
+	default:
+		return false
+	}
+}
