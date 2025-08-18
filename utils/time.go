@@ -108,3 +108,24 @@ func IsUnixEnds(unix int, timeframe string, counter *int) bool {
 		return false
 	}
 }
+
+func ConvertTimeframeInUnix(timeframe string) int {
+	switch timeframe {
+	case "1":
+		return 60
+	case "5":
+		return 300
+	case "15":
+		return 900
+	case "30":
+		return 1800
+	case "60":
+		return 3600
+	case "240":
+		return 14400
+	case "D":
+		return 86400
+	default:
+		return -1
+	}
+}
