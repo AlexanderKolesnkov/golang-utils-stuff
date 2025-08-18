@@ -1,6 +1,7 @@
 package timefh
 
 import (
+	"fmt"
 	"github.com/AlexanderKolesnkov/golang-utils-stuff/consts"
 	"time"
 )
@@ -43,45 +44,45 @@ func CalcTimeframesCount(timeframe, start, end string) (int, error) {
 	return -1, nil
 }
 
-func IsUnixEnds(unix int, duration int, counter *int) bool {
+func IsUnixEnds(unix int, duration int, counter *int) (bool, error) {
 	switch duration {
 	case Day * 3:
 		if unix%86400 == 0 {
 			*counter++
 			if *counter == 3 {
 				*counter = 0
-				return true
+				return true, nil
 			}
 		}
 
-		return false
+		return false, nil
 	case Day:
 		if unix%86400 == 0 {
-			return true
+			return true, nil
 		}
 
-		return false
+		return false, nil
 	case Hour * 12:
 		if unix%86400 == 0 || unix%86400 == 43200 {
-			return true
+			return true, nil
 		}
 
-		return false
+		return false, nil
 
 	case Hour * 2:
 		if unix%3600 == 0 && (unix/3600)%2 == 0 {
-			return true
+			return true, nil
 		}
 
-		return false
+		return false, nil
 	case Hour:
 		if unix%3600 == 0 {
-			return true
+			return true, nil
 		}
 
-		return false
+		return false, nil
 	default:
-		return false
+		return false, fmt.Errorf("not allowed duration: %v", duration)
 	}
 }
 
