@@ -2,7 +2,7 @@ package broadcast
 
 import (
 	"context"
-	"fmt"
+	"go.uber.org/zap"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -12,7 +12,8 @@ type Broadcast struct {
 	ch          chan Message
 	subscribers map[string]subscriber
 
-	mu *sync.RWMutex
+	mu     *sync.RWMutex
+	logger *zap.Logger
 }
 
 type subscriber struct {
@@ -21,33 +22,34 @@ type subscriber struct {
 	ch        chan Message
 }
 
-func NewBroadcast() *Broadcast {
+func NewBroadcast(logger *zap.Logger) *Broadcast {
 	return &Broadcast{
 		ch:          make(chan Message),
 		subscribers: make(map[string]subscriber),
 
-		mu: &sync.RWMutex{},
+		mu:     &sync.RWMutex{},
+		logger: logger,
 	}
 }
 
-func (b *Broadcast) Listen(ctx context.Context) {
+func (broadcast *Broadcast) Listen(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case message := <-b.ch:
-			b.iterateSubscribers(message)
+		case message := <-broadcast.ch:
+			broadcast.iterateSubscribers(message)
 		case <-time.After(1 * time.Millisecond):
 			break
 		}
 	}
 }
 
-func (b *Broadcast) iterateSubscribers(message Message) {
-	b.mu.RLock()
-	defer b.mu.RUnlock()
+func (broadcast *Broadcast) iterateSubscribers(message Message) {
+	broadcast.mu.RLock()
+	defer broadcast.mu.RUnlock()
 
-	for key, sub := range b.subscribers {
+	for key, sub := range broadcast.subscribers {
 		if sub.isClosing.Load() == 1 {
 			continue
 		}
@@ -55,7 +57,7 @@ func (b *Broadcast) iterateSubscribers(message Message) {
 		select {
 		case <-sub.ctx.Done():
 			sub.isClosing.Store(1)
-			go b.deleteSubscribe(key)
+			go broadcast.deleteSubscribe(key)
 			break
 		case sub.ch <- message:
 			break
@@ -65,9 +67,9 @@ func (b *Broadcast) iterateSubscribers(message Message) {
 	}
 }
 
-func (b *Broadcast) Send(symbol, timeframe string, StartTime int64, confirm bool) {
+func (broadcast *Broadcast) Send(symbol, timeframe string, StartTime int64, confirm bool) {
 	select {
-	case b.ch <- Message{
+	case broadcast.ch <- Message{
 		Symbol:    symbol,
 		Timeframe: timeframe,
 		StartTime: StartTime,
@@ -79,14 +81,14 @@ func (b *Broadcast) Send(symbol, timeframe string, StartTime int64, confirm bool
 	}
 }
 
-func (b *Broadcast) Subscribe(ctx context.Context, key string) chan Message {
-	b.mu.Lock()
-	defer b.mu.Unlock()
+func (broadcast *Broadcast) Subscribe(ctx context.Context, key string) chan Message {
+	broadcast.mu.Lock()
+	defer broadcast.mu.Unlock()
 
-	fmt.Println("Subscribe", key)
+	broadcast.logger.Info("Subscribe", zap.String("key", key))
 	ch := make(chan Message)
 
-	b.subscribers[key] = subscriber{
+	broadcast.subscribers[key] = subscriber{
 		ctx:       ctx,
 		isClosing: &atomic.Int32{},
 		ch:        ch,
@@ -95,12 +97,12 @@ func (b *Broadcast) Subscribe(ctx context.Context, key string) chan Message {
 	return ch
 }
 
-func (b *Broadcast) deleteSubscribe(key string) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
+func (broadcast *Broadcast) deleteSubscribe(key string) {
+	broadcast.mu.Lock()
+	defer broadcast.mu.Unlock()
 
-	fmt.Println("Delete", key)
+	broadcast.logger.Info("Delete", zap.String("key", key))
 
-	close(b.subscribers[key].ch)
-	delete(b.subscribers, key)
+	close(broadcast.subscribers[key].ch)
+	delete(broadcast.subscribers, key)
 }
