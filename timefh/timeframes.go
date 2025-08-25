@@ -81,6 +81,11 @@ func IsUnixEnds(unix int, duration int, counter *int) (bool, error) {
 		}
 
 		return false, nil
+	case Minute * 5:
+		if ((unix/60)%60)%15 == 0 {
+			return true, nil
+		}
+		return false, nil
 	default:
 		return false, fmt.Errorf("not allowed duration: %v", duration)
 	}
