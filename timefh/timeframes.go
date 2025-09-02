@@ -68,7 +68,6 @@ func IsUnixEnds(unix int, duration int, counter *int) (bool, error) {
 		}
 
 		return false, nil
-
 	case Hour * 2:
 		if unix%3600 == 0 && (unix/3600)%2 == 0 {
 			return true, nil
@@ -80,11 +79,13 @@ func IsUnixEnds(unix int, duration int, counter *int) (bool, error) {
 			return true, nil
 		}
 
+		return false, nil
 	case Minute * 30:
 		if ((unix/60)%60)%30 == 0 {
 			return true, nil
 		}
 
+		return false, nil
 	case Minute * 15:
 		if ((unix/60)%60)%15 == 0 {
 			return true, nil
@@ -100,8 +101,6 @@ func IsUnixEnds(unix int, duration int, counter *int) (bool, error) {
 	default:
 		return false, fmt.Errorf("not allowed duration: %v", duration)
 	}
-
-	return false, fmt.Errorf("not allowed duration: %v", duration)
 }
 
 func ConvertTimeframeInUnix(timeframe string) int {
