@@ -68,6 +68,12 @@ func IsUnixEnds(unix int, duration int, counter *int) (bool, error) {
 		}
 
 		return false, nil
+	case Hour * 4:
+		if unix%3600 == 0 && (unix/3600)%4 == 0 {
+			return true, nil
+		}
+
+		return false, nil
 	case Hour * 2:
 		if unix%3600 == 0 && (unix/3600)%2 == 0 {
 			return true, nil
@@ -94,6 +100,12 @@ func IsUnixEnds(unix int, duration int, counter *int) (bool, error) {
 		return false, nil
 	case Minute * 5:
 		if ((unix/60)%60)%5 == 0 {
+			return true, nil
+		}
+
+		return false, nil
+	case Minute:
+		if ((unix/60)%60)%1 == 0 {
 			return true, nil
 		}
 
