@@ -90,7 +90,18 @@ func PercentFormula(finalValue, initialValue float64) float64 {
 	if initialValue == 0 {
 		return 0 // Возвращает 0, чтобы избежать деления на ноль
 	}
-	return (finalValue - initialValue) / (initialValue / 100)
+
+	pcnt := (finalValue - initialValue) / (initialValue / 100)
+
+	if finalValue > initialValue {
+		pcnt = math.Abs(pcnt)
+	}
+
+	if finalValue < initialValue && pcnt > 0 {
+		pcnt = pcnt * -1
+	}
+
+	return pcnt
 }
 
 // DeviancePercent рассчитывает процентное отклонение текущего значения (cur) от среднего значения (mean),
