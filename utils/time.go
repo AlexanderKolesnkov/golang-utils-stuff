@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -28,6 +29,16 @@ func TimeDeflect(start, tf string, deflect int) (string, int, error) {
 	timestamp := AddTime(tf, dt, time.Duration(-deflect))
 
 	return time.Unix(timestamp/1000, 0).UTC().Format(time.DateTime), int(dt.UnixMilli()), nil
+}
+
+func TimeSince(start time.Time) string {
+	duration := time.Since(start)
+
+	if duration < time.Second {
+		return fmt.Sprintf("%.1fms\n", float64(duration.Microseconds())/1000)
+	}
+
+	return fmt.Sprintf("%.1fs\n", duration.Seconds())
 }
 
 func TimeNowFormat() string {
