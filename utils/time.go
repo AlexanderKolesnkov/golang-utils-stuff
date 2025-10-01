@@ -35,10 +35,10 @@ func TimeSince(start time.Time) string {
 	duration := time.Since(start)
 
 	if duration < time.Second {
-		return fmt.Sprintf("%.1fms\n", float64(duration.Microseconds())/1000)
+		return fmt.Sprintf("%.1fms", float64(duration.Microseconds())/1000)
 	}
 
-	return fmt.Sprintf("%.1fs\n", duration.Seconds())
+	return fmt.Sprintf("%.1fs", duration.Seconds())
 }
 
 func TimeNowFormat() string {
