@@ -83,7 +83,7 @@ func CreateLogFile(dirName, fileName string) (*os.File, error) {
 		}
 	}
 
-	filePath := fmt.Sprintf("%s/%s_%s.log", dirName, fileName, time.Now().Format("2006-01-02 15-04-05"))
+	filePath := fmt.Sprintf("%s/%s_%s.log", dirName, fileName, time.Now().Format(time.RFC3339))
 	logFile, err := os.Create(filePath)
 	if err != nil {
 		return nil, fmt.Errorf(filePath, err)
