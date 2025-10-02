@@ -53,17 +53,9 @@ func NewZapFileConsoleLogger(dirName, fileName, level string) (*os.File, *zap.Lo
 
 	consoleCore := zapcore.NewCore(consoleEncoder, consoleWriter, logLevel)
 
-	if _, err := os.Stat(dirName); os.IsNotExist(err) {
-		err = os.MkdirAll(dirName, os.ModePerm)
-		if err != nil {
-			return nil, nil, fmt.Errorf("unable to create log directory: %v", err)
-		}
-	}
-
-	filePath := fmt.Sprintf("%s/%s_%s.log", dirName, fileName, time.Now().Format("2006-01-02 15-04-05"))
-	logFile, err := os.Create(filePath)
+	logFile, err := CreateLogFile(dirName, fileName)
 	if err != nil {
-		return nil, nil, fmt.Errorf(filePath, err)
+		return nil, nil, fmt.Errorf("CreateLogFile(%s, %s): %v", dirName, fileName, err)
 	}
 
 	fileEncoderConfig := zap.NewProductionEncoderConfig()
@@ -81,6 +73,23 @@ func NewZapFileConsoleLogger(dirName, fileName, level string) (*os.File, *zap.Lo
 	logger = logger.WithOptions(zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))
 
 	return logFile, logger, nil
+}
+
+func CreateLogFile(dirName, fileName string) (*os.File, error) {
+	if _, err := os.Stat(dirName); os.IsNotExist(err) {
+		err = os.MkdirAll(dirName, os.ModePerm)
+		if err != nil {
+			return nil, fmt.Errorf("unable to create log directory: %v", err)
+		}
+	}
+
+	filePath := fmt.Sprintf("%s/%s_%s.log", dirName, fileName, time.Now().Format("2006-01-02 15-04-05"))
+	logFile, err := os.Create(filePath)
+	if err != nil {
+		return nil, fmt.Errorf(filePath, err)
+	}
+
+	return logFile, nil
 }
 
 func utcTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
