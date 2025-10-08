@@ -54,7 +54,7 @@ func NewRedisClient(host, port, password string, db int) *redis.Client {
 	})
 }
 
-func NewClickHouseConn(host, port, database, username, password string) (driver.Conn, error) {
+func NewClickHouseConn(host, port, database, username, password string, maxOpenConnection int) (driver.Conn, error) {
 	var (
 		ctx       = context.Background()
 		conn, err = clickhouse.Open(&clickhouse.Options{
@@ -64,6 +64,11 @@ func NewClickHouseConn(host, port, database, username, password string) (driver.
 				Username: username,
 				Password: password,
 			},
+
+			MaxIdleConns:     maxOpenConnection,
+			ConnMaxLifetime:  time.Hour,
+			ConnOpenStrategy: clickhouse.ConnOpenInOrder,
+
 			ClientInfo: clickhouse.ClientInfo{
 				Products: []struct {
 					Name    string
